@@ -1,9 +1,10 @@
 from tkinter import Tk, Label, Entry, Button, messagebox
+import sqlite3
 
-# Database connection (replace with your actual connection logic)
+# Database connection function
 def connect_db():
-  # Your code to connect to the database (e.g., using sqlite3)
-  pass
+  conn = sqlite3.connect("user_data.db")
+  return conn, conn.cursor()
 
 def validate_email(email):
   return "@" in email and "." in email
@@ -24,12 +25,23 @@ def sign_up():
     messagebox.showerror("Error", "Passwords do not match")
     return
 
-  # Connect to database and store user information (replace with actual logic)
-  connect_db()
-  # Your code to save email and hashed password to the database
+  # Hash password before storing (replace with your hashing library)
+  hashed_password = hash_password(password1)  # Implement your hashing logic here
+
+  # Connect to database and store user information
+  conn, c = connect_db()
+  c.execute("INSERT INTO users (email, password_hash) VALUES (?, ?)", (email, hashed_password))
+  conn.commit()
+  conn.close()
 
   messagebox.showinfo("Success", "Account created successfully!")
   window.destroy()  # Close the sign-up window
+
+# Hash password function (replace with your actual hashing library)
+def hash_password(password):
+  # Implement your password hashing logic here (e.g., using bcrypt)
+  # This is a placeholder function, replace it with your chosen library
+  return password  # Temporary placeholder
 
 # Create the main window
 window = Tk()
@@ -62,3 +74,4 @@ submit_button.pack()
 
 # Run the main event loop
 window.mainloop()
+

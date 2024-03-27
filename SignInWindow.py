@@ -1,16 +1,24 @@
 from tkinter import Tk, Label, Entry, Button, messagebox
+import sqlite3
 
-# Database connection (replace with your actual connection logic)
+# Database connection function
 def connect_db():
-  # Your code to connect to the database (e.g., using sqlite3)
-  pass
+  conn = sqlite3.connect("user_data.db")
+  return conn, conn.cursor()
 
 def validate_login(email, password):
-  # Connect to database and check if email/password combination exists (replace with actual logic)
-  connect_db()
-  # Your code to retrieve user data from the database based on email
-  # Then compare the entered password with the hashed password stored in the database
-  # Return True if credentials match, False otherwise
+  conn, c = connect_db()
+  # Retrieve hashed password from database based on email
+  c.execute("SELECT password_hash FROM users WHERE email = ?", (email,))
+  data = c.fetchone()
+  conn.close()
+
+  # Check if email exists and compare hashed passwords (replace with your hashing library)
+  if data:
+    # Use your password hashing library (e.g., bcrypt) to compare hashed password with entered password
+    return True  # Replace with actual comparison logic
+  else:
+    return False
 
 def sign_in():
   email = email_entry.get()
@@ -47,3 +55,4 @@ sign_in_button.pack()
 
 # Run the main event loop
 window.mainloop()
+
