@@ -1,47 +1,45 @@
 from tkinter import Tk, Label, Entry, Button, messagebox
 import sqlite3
+import hashlib  # Required for password hashing
 
 # Database connection function
 def connect_db():
-  conn = sqlite3.connect("user_data.db")
-  return conn, conn.cursor()
+    conn = sqlite3.connect("user_data.db")
+    return conn, conn.cursor()
 
 def validate_email(email):
-  return "@" in email and "." in email
+    return "@" in email and "." in email
 
 def validate_password(password1, password2):
-  return password1 == password2
+    return password1 == password2
+
+def hash_password(password):
+    # Use SHA-256 hashing for password security (replace with your preferred hashing method)
+    hashed = hashlib.sha256(password.encode()).hexdigest()
+    return hashed
 
 def sign_up():
-  email = email_entry.get()
-  password1 = password_entry1.get()
-  password2 = password_entry2.get()
+    email = email_entry.get()
+    password1 = password_entry1.get()
+    password2 = password_entry2.get()
 
-  if not validate_email(email):
-    messagebox.showerror("Error", "Invalid email format")
-    return
+    if not validate_email(email):
+        messagebox.showerror("Error", "Invalid email format")
+        return
 
-  if not validate_password(password1, password2):
-    messagebox.showerror("Error", "Passwords do not match")
-    return
+    if not validate_password(password1, password2):
+        messagebox.showerror("Error", "Passwords do not match")
+        return
 
-  # Hash password before storing (replace with your hashing library)
-  hashed_password = hash_password(password1)  # Implement your hashing logic here
+    hashed_password = hash_password(password1)  # Hash the password
 
-  # Connect to database and store user information
-  conn, c = connect_db()
-  c.execute("INSERT INTO users (email, password_hash) VALUES (?, ?)", (email, hashed_password))
-  conn.commit()
-  conn.close()
+    conn, c = connect_db()
+    c.execute("INSERT INTO users (email, password_hash) VALUES (?, ?)", (email, hashed_password))
+    conn.commit()
+    conn.close()
 
-  messagebox.showinfo("Success", "Account created successfully!")
-  window.destroy()  # Close the sign-up window
-
-# Hash password function (replace with your actual hashing library)
-def hash_password(password):
-  # Implement your password hashing logic here (e.g., using bcrypt)
-  # This is a placeholder function, replace it with your chosen library
-  return password  # Temporary placeholder
+    messagebox.showinfo("Success", "Account created successfully!")
+    window.destroy()  # Close the sign-up window
 
 # Create the main window
 window = Tk()

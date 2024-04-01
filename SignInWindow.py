@@ -1,34 +1,38 @@
 from tkinter import Tk, Label, Entry, Button, messagebox
 import sqlite3
+import hashlib  # Required for password hashing
 
 # Database connection function
 def connect_db():
-  conn = sqlite3.connect("user_data.db")
-  return conn, conn.cursor()
+    conn = sqlite3.connect("user_data.db")
+    return conn, conn.cursor()
 
 def validate_login(email, password):
-  conn, c = connect_db()
-  # Retrieve hashed password from database based on email
-  c.execute("SELECT password_hash FROM users WHERE email = ?", (email,))
-  data = c.fetchone()
-  conn.close()
+    conn, c = connect_db()
+    # Retrieve hashed password from database based on email
+    c.execute("SELECT password_hash FROM users WHERE email = ?", (email,))
+    data = c.fetchone()
+    conn.close()
 
-  # Check if email exists and compare hashed passwords (replace with your hashing library)
-  if data:
-    # Use your password hashing library (e.g., bcrypt) to compare hashed password with entered password
-    return True  # Replace with actual comparison logic
-  else:
+    if data:
+        hashed_password_db = data[0]  # Extract hashed password from tuple
+        # Hash the entered password using the same method as during registration
+        hashed_password_input = hashlib.sha256(password.encode()).hexdigest()
+        
+        # Compare hashed passwords
+        if hashed_password_input == hashed_password_db:
+            return True
     return False
 
 def sign_in():
-  email = email_entry.get()
-  password = password_entry.get()
+    email = email_entry.get()
+    password = password_entry.get()
 
-  if validate_login(email, password):
-    messagebox.showinfo("Success", "Login successful!")
-    # Close the window or open a new window for the logged-in user (replace with your logic)
-  else:
-    messagebox.showerror("Error", "Email or password incorrect")
+    if validate_login(email, password):
+        messagebox.showinfo("Success", "Login successful!")
+        # Close the window or open a new window for the logged-in user (replace with your logic)
+    else:
+        messagebox.showerror("Error", "Email or password incorrect")
 
 # Create the main window
 window = Tk()
@@ -55,4 +59,3 @@ sign_in_button.pack()
 
 # Run the main event loop
 window.mainloop()
-
